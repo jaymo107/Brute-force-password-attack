@@ -40,7 +40,7 @@ class PasswordCracker {
             String[] words = this.dictionary.getChunk(i);
 
             // Pass the words to the constructor and create a new instance
-            Thread thread = new Thread(new BruteForce(words, i));
+            Thread thread = new Thread(new BruteForce(this.encryptedData, words, i));
 
             threads.add(thread);
             thread.start();
