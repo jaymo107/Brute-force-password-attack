@@ -4,6 +4,7 @@ import com.pcap.data.Dictionary;
 
 public class Main {
 
+
     /**
      * 1. Load in the PCAP
      */
@@ -23,6 +24,5 @@ public class Main {
 
         // Run the cracker to decrypt the messages
         cracker.crack();
-
     }
 }

@@ -21,6 +21,7 @@ class PasswordCracker {
 
     PasswordCracker(PcapFile file, Dictionary dictionary) {
         this.encryptedData = file.read();
+        System.out.println(this.encryptedData);
         this.dictionary = dictionary;
     }
 
