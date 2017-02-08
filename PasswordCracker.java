@@ -2,10 +2,13 @@ package com.pcap;
 
 import com.pcap.data.Dictionary;
 import com.pcap.methods.BruteForce;
+import com.pcap.misc.DisplayElapsedTime;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,6 +55,9 @@ class PasswordCracker {
         Thread thread = new Thread(new BruteForce(this.encryptedData, null, Dictionary.chunkAmount));
         threads.add(thread);
         thread.start();
+
+        // Start timer to show elapsed time
+        new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 1000);
 
     }
 }
