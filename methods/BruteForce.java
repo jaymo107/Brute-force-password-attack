@@ -5,7 +5,6 @@ import com.pcap.data.Dictionary;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author JamesDavies
