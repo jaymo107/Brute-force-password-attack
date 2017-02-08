@@ -1,5 +1,8 @@
 package com.pcap.methods;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author JamesDavies
  * @date 06/02/2017
@@ -13,6 +16,7 @@ public class BruteForce extends BaseAttack implements Runnable {
     private String[] words;
     private String charset;
     private int maxDepth;
+    private HashMap<String, Integer> numberSubstitutes;
 
     public BruteForce(String encryptedData, String[] words, int chunkId) {
 
@@ -24,7 +28,21 @@ public class BruteForce extends BaseAttack implements Runnable {
         this.chunkId = chunkId;
         this.encryptedData = encryptedData;
         this.charset = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm0123456789!@£$%^&*()?<>+{}";
+        this.numberSubstitutes = new HashMap<>();
         this.maxDepth = 3;
+
+        populateSubstitutes();
+    }
+
+    /**
+     * Populate the hashmap with numbers and their key values
+     */
+    private void populateSubstitutes() {
+        this.numberSubstitutes.put("o", 0);
+        this.numberSubstitutes.put("a", 4);
+        this.numberSubstitutes.put("e", 3);
+        this.numberSubstitutes.put("i", 1);
+        this.numberSubstitutes.put("s", 5);
     }
 
     /**
@@ -37,6 +55,10 @@ public class BruteForce extends BaseAttack implements Runnable {
 
         return checkPassword(this.encryptedData, newString);
     }
+
+//    private boolean randomNumber() {
+//
+//    }
 
     /**
      * Duplicate a string.
@@ -52,7 +74,6 @@ public class BruteForce extends BaseAttack implements Runnable {
      */
     private boolean appendCharacter(String word, int depth) {
 
-
         String newWord = word + this.charset.toCharArray()[0];
 
         return checkPassword(this.encryptedData, newWord);
@@ -60,28 +81,56 @@ public class BruteForce extends BaseAttack implements Runnable {
 
     }
 
+
     /**
      * Convert letter in the word to lowercase.
      * e.g. pAssword -> paSsword -> ... PASSword -> PASSWord ...
      */
-    private void lowercase(String word) {
+    private boolean capitalize(String word) {
 
-    }
+        // Check full casings
+        if (checkPassword(this.encryptedData, word.toUpperCase()) ||
+                checkPassword(this.encryptedData, word.toLowerCase()))
+            return true;
 
-    /**
-     * Convert letter in the word to uppercase.
-     * e.g. pAssword -> paSsword -> ... PASSword -> PASSWord ...
-     */
-    private void uppercase(String word) {
+        // Initially set the word to lower case
+        word = word.toLowerCase();
 
+        for (int i = 0; i < word.length(); i++) {
+            String newWord = word.substring(((i - 1 <= 0) ? 0 : i - 1), i).toUpperCase() + word.substring(i);
+
+            if (checkPassword(this.encryptedData, newWord))
+                return true;
+        }
+
+        return false;
     }
 
     /**
      * Replace certain letters with numbers.
      * e.g. P4SS -> P45S -> P455 ...
      */
-    private void numberSubstitution(String word) {
+    private boolean numberSubstitution(String word) {
 
+        for (int i = 0; i < word.length(); i++) {
+
+            // Check if the current letter (either upper or lowercase) is in the hashmap
+            String currentChar = String.valueOf(word.charAt(i));
+            String lowercaseChar = currentChar.toLowerCase();
+            String uppercaseChar = currentChar.toUpperCase();
+
+            if (this.numberSubstitutes.containsKey(lowercaseChar)) {
+                // We can replace it
+                String replacement = String.valueOf(this.numberSubstitutes.get(lowercaseChar));
+                word = word.replaceAll("[" + uppercaseChar + lowercaseChar + "]", replacement);
+            }
+
+            if(checkPassword(this.encryptedData, word))
+                return true;
+
+        }
+
+        return checkPassword(this.encryptedData, word);
     }
 
 
@@ -91,6 +140,15 @@ public class BruteForce extends BaseAttack implements Runnable {
 
             // For each of the words in the dictionary, apply the filters
             // Try to crack the word on it's own here.
+
+            checkFound(reverseString(word));
+
+            checkFound(duplicateString(word));
+
+            checkFound(capitalize(word));
+
+            checkFound(numberSubstitution(word));
+
             /*
              * a -> b -> c -> aa ab a
              */
@@ -100,9 +158,18 @@ public class BruteForce extends BaseAttack implements Runnable {
 
     }
 
-    public void run() {
-        System.out.println("Starting Cracking on chunk #" + this.chunkId);
+    private void checkFound(boolean isFound) {
+        if (isFound) {
+            System.err.println("PASSWORD WAS FOUND BROTHERRRR");
+            System.exit(0);
+        }
+    }
 
-        //crack(words);
+    public void run() {
+        //System.out.println("Starting Cracking on chunk #" + this.chunkId);
+
+        //permuteString("", "james");
+        //
+        crack(words);
     }
 }
