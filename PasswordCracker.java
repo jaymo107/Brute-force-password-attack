@@ -48,22 +48,10 @@ class PasswordCracker {
 
         }
 
-        // Write the result to file
-        writeOutput("No Matches found");
-    }
+        // Thread for calculating the number
+        Thread thread = new Thread(new BruteForce(this.encryptedData, null, Dictionary.chunkAmount));
+        threads.add(thread);
+        thread.start();
 
-    /**
-     * Write the output of the decrypted file to output.txt
-     *
-     * @param output The message that was decrypted
-     */
-    private void writeOutput(String output) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
-            writer.write(output);
-            writer.close();
-        } catch (Exception e) {
-            System.err.println("Couldn't write the output to file.");
-        }
     }
 }

@@ -1,5 +1,9 @@
 package com.pcap.methods;
 
+import com.pcap.data.Dictionary;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,10 +60,6 @@ public class BruteForce extends BaseAttack implements Runnable {
         return checkPassword(this.encryptedData, newString);
     }
 
-//    private boolean randomNumber() {
-//
-//    }
-
     /**
      * Duplicate a string.
      * e.g. passpass, P4SSP4SS ...
@@ -69,12 +69,49 @@ public class BruteForce extends BaseAttack implements Runnable {
     }
 
     /**
+     * Password could just be a plain number
+     *
+     * @return boolean
+     */
+    private boolean checkForNumber() {
+        for (int i = 0; i < 99999999; i++) {
+            if (checkPassword(this.encryptedData, String.valueOf(i))) return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Append character to a string.
      * e.g. pass0 -> pass1 -> pass@ ...
      */
     private boolean appendCharacter(String word) {
-        String newWord = word + this.charset.toCharArray()[0];
-        return checkPassword(this.encryptedData, newWord);
+
+        // First Random character
+        for (int i = 0; i < this.charset.length(); i++) {
+            String firstWord = word.concat(String.valueOf(this.charset.charAt(i)));
+            if (checkPassword(this.encryptedData, firstWord)) return true;
+
+            // Second character
+            for (int j = 0; j < this.charset.length(); j++) {
+                String secondWord = firstWord.concat(String.valueOf(this.charset.charAt(j)));
+                if (checkPassword(this.encryptedData, firstWord)) return true;
+
+                // Third character
+                for (int k = 0; k < this.charset.length(); k++) {
+                    String thirdWord = secondWord.concat(String.valueOf(this.charset.charAt(k)));
+                    if (checkPassword(this.encryptedData, thirdWord)) return true;
+
+                    // Fourth character
+                    for (int l = 0; l < this.charset.length(); l++) {
+                        String finalWord = thirdWord.concat(String.valueOf(this.charset.charAt(l)));
+                        if (checkPassword(this.encryptedData, finalWord)) return true;
+                    }
+                }
+            }
+        }
+
+        return checkPassword(this.encryptedData, word);
     }
 
 
@@ -143,42 +180,58 @@ public class BruteForce extends BaseAttack implements Runnable {
     }
 
 
-    private String crack(String[] words) {
+    private void crack(String[] words) {
 
         for (String word : words) {
 
             // For each of the words in the dictionary, apply the filters
             // Try to crack the word on it's own here.
             checkFound(checkPassword(this.encryptedData, word));
+
             // Filters
+            checkFound(appendCharacter(word));
             checkFound(reverseString(word));
             checkFound(duplicateString(word));
             checkFound(capitalize(word));
             checkFound(numberSubstitution(word));
             checkFound(appendNumber(word));
-
-            /*
-             * a -> b -> c -> aa ab a
-             */
         }
-
-        return "";
 
     }
 
     private void checkFound(boolean isFound) {
         if (isFound) {
             System.err.println("PASSWORD WAS FOUND BROTHERRRR");
-
+            // TODO: Return the output from the decryption
+            writeOutput("Output");
             System.exit(0);
         }
     }
 
     public void run() {
-        //System.out.println("Starting Cracking on chunk #" + this.chunkId);
 
-        //permuteString("", "james");
-        //
+        // Check if this is the last thread to be ran, this is where you check the number
+        if (this.chunkId == Dictionary.chunkAmount) {
+            checkFound(checkForNumber());
+            return;
+        }
+
         crack(words);
+    }
+
+
+    /**
+     * Write the output of the decrypted file to output.txt
+     *
+     * @param output The message that was decrypted
+     */
+    private void writeOutput(String output) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+            writer.write(output);
+            writer.close();
+        } catch (Exception e) {
+            System.err.println("Couldn't write the output to file.");
+        }
     }
 }
