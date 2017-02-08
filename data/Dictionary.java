@@ -38,7 +38,7 @@ public class Dictionary {
             }
 
             this.words = list.toArray(new String[0]);
-            this.chunkSize = (int) Math.ceil(list.size() / this.chunkAmount);
+            this.chunkSize = (int) Math.ceil(list.size() / chunkAmount);
             this.totalChunks = (int) Math.ceil(this.words.length / this.chunkSize);
 
         } catch (Exception e) {
@@ -63,16 +63,6 @@ public class Dictionary {
      */
     public String[] getChunk(int chunk) {
         return Arrays.copyOfRange(this.getWords(), this.chunkSize * chunk, (this.chunkSize * chunk) + chunkSize);
-    }
-
-    /**
-     * Check if there is a next chunk available
-     *
-     * @param chunk The chunk to check
-     * @return boolean
-     */
-    public boolean hasNext(int chunk) {
-        return (getChunk(chunk).length <= 0);
     }
 
     /**
