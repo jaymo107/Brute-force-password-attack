@@ -72,15 +72,25 @@ public class BruteForce extends BaseAttack implements Runnable {
      * Append character to a string.
      * e.g. pass0 -> pass1 -> pass@ ...
      */
-    private boolean appendCharacter(String word, int depth) {
-
+    private boolean appendCharacter(String word) {
         String newWord = word + this.charset.toCharArray()[0];
-
         return checkPassword(this.encryptedData, newWord);
-
-
     }
 
+
+    /**
+     * Append integer to a string.
+     * e.g. pass0 -> pass1 -> pass2 ...
+     */
+    private boolean appendNumber(String word) {
+
+        for (int i = 0; i < 99999; i++) {
+            if (checkPassword(this.encryptedData, word.concat(String.valueOf(i))))
+                return true;
+        }
+
+        return false;
+    }
 
     /**
      * Convert letter in the word to lowercase.
@@ -125,9 +135,8 @@ public class BruteForce extends BaseAttack implements Runnable {
                 word = word.replaceAll("[" + uppercaseChar + lowercaseChar + "]", replacement);
             }
 
-            if(checkPassword(this.encryptedData, word))
+            if (checkPassword(this.encryptedData, word))
                 return true;
-
         }
 
         return checkPassword(this.encryptedData, word);
@@ -140,14 +149,13 @@ public class BruteForce extends BaseAttack implements Runnable {
 
             // For each of the words in the dictionary, apply the filters
             // Try to crack the word on it's own here.
-
+            checkFound(checkPassword(this.encryptedData, word));
+            // Filters
             checkFound(reverseString(word));
-
             checkFound(duplicateString(word));
-
             checkFound(capitalize(word));
-
             checkFound(numberSubstitution(word));
+            checkFound(appendNumber(word));
 
             /*
              * a -> b -> c -> aa ab a
@@ -161,6 +169,7 @@ public class BruteForce extends BaseAttack implements Runnable {
     private void checkFound(boolean isFound) {
         if (isFound) {
             System.err.println("PASSWORD WAS FOUND BROTHERRRR");
+
             System.exit(0);
         }
     }
