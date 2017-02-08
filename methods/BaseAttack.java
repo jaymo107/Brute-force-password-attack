@@ -3,6 +3,8 @@ package com.pcap.methods;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -15,14 +17,18 @@ public class BaseAttack {
     private Cipher cipher;
     private IvParameterSpec ivParameterSpec;
     private SecretKeySpec secretKeySpec;
+    private MessageDigest digest;
 
     public BaseAttack() {
 
         String iv = "1234567891011121";
 
         try {
+
             this.ivParameterSpec = new IvParameterSpec(iv.getBytes("UTF-8"));
             this.cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            this.digest = MessageDigest.getInstance("SHA-256");
+
         } catch (Exception e) {
             System.err.println("Failed to initialise the cipher.");
         }
@@ -37,15 +43,22 @@ public class BaseAttack {
      */
     protected boolean checkPassword(String encrypted, String password) {
 
+        // Convert the password to hash
+        byte[] passwordBytes = getHash(password);
+
+        // Decode the data to decrypt
+        byte[] encryptedData = Base64.getDecoder().decode(encrypted);
+
         try {
+
             // Get the new secret key with the password to check
-            this.secretKeySpec = new SecretKeySpec(password.getBytes("UTF-8"), "AES");
+            this.secretKeySpec = new SecretKeySpec(passwordBytes, "AES");
 
             // Init the cipher with the new secret key
             cipher.init(Cipher.DECRYPT_MODE, this.secretKeySpec, this.ivParameterSpec);
 
             // Decrypt the file and BASe64 decode it
-            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+            byte[] original = cipher.doFinal(encryptedData);
 
             // Store the result to a string
             String result = new String(original, "UTF-8");
@@ -56,6 +69,19 @@ public class BaseAttack {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Get the hash of the password and retrieve the first 16 bytes
+     *
+     * @param password
+     * @return
+     */
+    private byte[] getHash(String password) {
+
+        byte[] newBytes = this.digest.digest(password.getBytes());
+
+        return Arrays.copyOfRange(newBytes, 0, 16);
     }
 
 }
