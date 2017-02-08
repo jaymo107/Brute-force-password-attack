@@ -14,11 +14,9 @@ import java.util.HashMap;
 public class BruteForce extends BaseAttack implements Runnable {
 
     private String encryptedData;
-    private Thread thread;
     private int chunkId;
     private String[] words;
     private String charset;
-    private int maxDepth;
     private HashMap<String, Integer> numberSubstitutes;
 
     public BruteForce(String encryptedData, String[] words, int chunkId) {
@@ -32,7 +30,6 @@ public class BruteForce extends BaseAttack implements Runnable {
         this.encryptedData = encryptedData;
         this.charset = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm0123456789!@£$%^&*()?<>+{}";
         this.numberSubstitutes = new HashMap<>();
-        this.maxDepth = 3;
 
         populateSubstitutes();
     }
@@ -53,9 +50,7 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. drowssnap -> olleh ...
      */
     private boolean reverseString(String word) {
-
         String newString = new StringBuilder(word).reverse().toString();
-
         return checkPassword(this.encryptedData, newString);
     }
 
@@ -188,12 +183,12 @@ public class BruteForce extends BaseAttack implements Runnable {
             checkFound(checkPassword(this.encryptedData, word));
 
             // Filters
-            checkFound(appendCharacter(word));
             checkFound(reverseString(word));
             checkFound(duplicateString(word));
             checkFound(capitalize(word));
             checkFound(numberSubstitution(word));
             checkFound(appendNumber(word));
+            checkFound(appendCharacter(word));
         }
 
     }
