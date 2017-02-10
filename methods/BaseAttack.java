@@ -1,5 +1,7 @@
 package com.pcap.methods;
 
+import com.pcap.misc.events.PasswordCrackedEventListener;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,6 +11,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * @author JamesDavies
@@ -22,13 +25,14 @@ public class BaseAttack {
     private SecretKeySpec secretKeySpec;
     private MessageDigest digest;
     private ArrayList<Thread> threads;
+    private List<PasswordCrackedEventListener> listeners;
 
     public BaseAttack() {
 
         String iv = "1234567891011121";
 
         try {
-
+            this.listeners = new ArrayList<>();
             this.ivParameterSpec = new IvParameterSpec(iv.getBytes("UTF-8"));
             this.cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             this.digest = MessageDigest.getInstance("SHA-256");
@@ -36,6 +40,15 @@ public class BaseAttack {
         } catch (Exception e) {
             System.err.println("Failed to initialise the cipher.");
         }
+    }
+
+    /**
+     * Add a new event listener for the base attack.
+     *
+     * @param toAdd The listener class.
+     */
+    public void addListener(PasswordCrackedEventListener toAdd) {
+        listeners.add(toAdd);
     }
 
     /**
@@ -69,10 +82,12 @@ public class BaseAttack {
 
             boolean hasFound = (result.contains("DECRYPTED:"));
 
-            if(hasFound) {
+            if (hasFound) {
                 String output = result.split(":")[1];
                 writeOutput(output);
-                System.exit(0);
+
+                for (PasswordCrackedEventListener hl : listeners)
+                    hl.passwordCracked();
             }
 
             // Check if it contains the words DECRYPTED
@@ -95,11 +110,6 @@ public class BaseAttack {
 
         return Arrays.copyOfRange(newBytes, 0, 16);
     }
-
-    public void addThreadContexts() {
-
-    }
-
 
     /**
      * Write the output of the decrypted file to output.txt
