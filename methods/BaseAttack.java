@@ -3,7 +3,10 @@ package com.pcap.methods;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -18,6 +21,7 @@ public class BaseAttack {
     private IvParameterSpec ivParameterSpec;
     private SecretKeySpec secretKeySpec;
     private MessageDigest digest;
+    private ArrayList<Thread> threads;
 
     public BaseAttack() {
 
@@ -63,8 +67,16 @@ public class BaseAttack {
             // Store the result to a string
             String result = new String(original, "UTF-8");
 
+            boolean hasFound = (result.contains("DECRYPTED:"));
+
+            if(hasFound) {
+                String output = result.split(":")[1];
+                writeOutput(output);
+                System.exit(0);
+            }
+
             // Check if it contains the words DECRYPTED
-            return (result.contains("DECRYPTED:"));
+            return hasFound;
 
         } catch (Exception e) {
             return false;
@@ -82,6 +94,26 @@ public class BaseAttack {
         byte[] newBytes = this.digest.digest(password.getBytes());
 
         return Arrays.copyOfRange(newBytes, 0, 16);
+    }
+
+    public void addThreadContexts() {
+
+    }
+
+
+    /**
+     * Write the output of the decrypted file to output.txt
+     *
+     * @param output The message that was decrypted
+     */
+    private void writeOutput(String output) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+            writer.write(output);
+            writer.close();
+        } catch (Exception e) {
+            System.err.println("Couldn't write the output to file.");
+        }
     }
 
 }
