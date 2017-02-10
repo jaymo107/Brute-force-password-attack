@@ -50,8 +50,7 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. drowssnap -> olleh ...
      */
     private boolean reverseString(String word) {
-        String newString = new StringBuilder(word).reverse().toString();
-        return checkPassword(this.encryptedData, newString);
+        return checkPassword(this.encryptedData, new StringBuilder(word).reverse().toString());
     }
 
     /**
@@ -124,6 +123,20 @@ public class BruteForce extends BaseAttack implements Runnable {
     }
 
     /**
+     * Prepend integer to a string.
+     * e.g. pass0 -> pass1 -> pass2 ...
+     */
+    private boolean prependNumber(String word) {
+
+        for (int i = 0; i < 99999; i++) {
+            if (checkPassword(this.encryptedData, String.valueOf(i).concat(word)))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Convert letter in the word to lowercase.
      * e.g. pAssword -> paSsword -> ... PASSword -> PASSWord ...
      */
@@ -184,6 +197,7 @@ public class BruteForce extends BaseAttack implements Runnable {
 
             // Filters
             checkFound(reverseString(word));
+            checkFound(prependNumber(word));
             checkFound(duplicateString(word));
             checkFound(capitalize(word));
             checkFound(numberSubstitution(word));
