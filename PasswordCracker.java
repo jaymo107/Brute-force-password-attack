@@ -1,13 +1,11 @@
 package com.pcap;
 
 import com.pcap.data.Dictionary;
-import com.pcap.methods.BaseAttack;
 import com.pcap.methods.BruteForce;
-import com.pcap.misc.DisplayElapsedTime;
 import com.pcap.misc.events.PasswordCrackedEventListener;
 
 import java.util.ArrayList;
-import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author JamesDavies
@@ -19,6 +17,7 @@ class PasswordCracker implements PasswordCrackedEventListener {
     private String encryptedData;
     private Dictionary dictionary;
     private ArrayList<Thread> threads;
+    private long startTime;
 
     PasswordCracker(PcapFile file, Dictionary dictionary) {
         this.encryptedData = file.read();
@@ -35,20 +34,21 @@ class PasswordCracker implements PasswordCrackedEventListener {
         System.out.println("First chunk length: " + this.dictionary.getChunk(0).length);
 
         this.threads = new ArrayList<>();
+        this.startTime = System.currentTimeMillis();
 
         // Loop over every chunk and pass the string array for that chunk
         for (int i = 0; i < this.dictionary.getMaxChunks(); i++) {
 
             String[] words = this.dictionary.getChunk(i);
 
-
+            // Create new BruteForce object and set the event listener to this class.
             BruteForce attack = new BruteForce(this.encryptedData, words, i);
             attack.addListener(this);
-
 
             // Pass the words to the constructor and create a new instance
             Thread thread = new Thread(attack);
 
+            // Add the threads to the arraylist and start them
             threads.add(thread);
             thread.start();
 
@@ -65,14 +65,21 @@ class PasswordCracker implements PasswordCrackedEventListener {
     }
 
     @Override
-    public synchronized void passwordCracked() {
+    public synchronized void onPasswordCracked() {
+
+        // Calculate time difference
+        long endTime = System.currentTimeMillis() - startTime;
+
         // Called when a password has been cracked
-        // Clean up all of the threads
-        System.out.println("This called from the event listener!");
+        System.err.println("============================================================================");
+        System.err.println("Password cracked successfully in " + TimeUnit.MILLISECONDS.toMinutes(endTime) + " mins " + TimeUnit.MILLISECONDS.toSeconds(endTime) + " second. Output sent to 'output.txt'");
+        System.err.println("============================================================================");
 
         // Stop all threads
         for (Thread thread : this.threads) {
             thread.interrupt();
         }
+
+        System.exit(0);
     }
 }

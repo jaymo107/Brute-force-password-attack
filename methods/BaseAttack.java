@@ -84,10 +84,12 @@ public class BaseAttack {
 
             if (hasFound) {
                 String output = result.split(":")[1];
+
+                // Write the output to the text file
                 writeOutput(output);
 
                 for (PasswordCrackedEventListener hl : listeners)
-                    hl.passwordCracked();
+                    hl.onPasswordCracked();
             }
 
             // Check if it contains the words DECRYPTED

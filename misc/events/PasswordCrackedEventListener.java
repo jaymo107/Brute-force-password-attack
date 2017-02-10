@@ -7,6 +7,6 @@ package com.pcap.misc.events;
  */
 public interface PasswordCrackedEventListener {
 
-    public void passwordCracked();
+    void onPasswordCracked();
 
 }
