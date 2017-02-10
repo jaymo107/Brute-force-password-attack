@@ -38,6 +38,7 @@ class PasswordCracker {
 
             String[] words = this.dictionary.getChunk(i);
 
+
             // Pass the words to the constructor and create a new instance
             Thread thread = new Thread(new BruteForce(this.encryptedData, words, i));
 
@@ -47,12 +48,12 @@ class PasswordCracker {
         }
 
         // Thread for calculating the number
-        Thread thread = new Thread(new BruteForce(this.encryptedData, null, Dictionary.chunkAmount));
-        threads.add(thread);
-        thread.start();
+        Thread numberGeneratorThread = new Thread(new BruteForce(this.encryptedData, null, Dictionary.chunkAmount));
+        threads.add(numberGeneratorThread);
+        numberGeneratorThread.start();
 
         // Start timer to show elapsed time
-        new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 1000);
+        //new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 1000);
 
     }
 }

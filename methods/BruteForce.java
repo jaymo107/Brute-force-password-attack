@@ -50,6 +50,7 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. drowssnap -> olleh ...
      */
     private boolean reverseString(String word) {
+        System.out.println("Reverse string method called");
         return checkPassword(this.encryptedData, new StringBuilder(word).reverse().toString());
     }
 
@@ -58,6 +59,7 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. passpass, P4SSP4SS ...
      */
     private boolean duplicateString(String word) {
+        System.out.println("Duplicate string method called");
         return checkPassword(this.encryptedData, word + word);
     }
 
@@ -67,6 +69,7 @@ public class BruteForce extends BaseAttack implements Runnable {
      * @return boolean
      */
     private boolean checkForNumber() {
+        System.out.println("Number method called.");
         for (int i = 0; i < 99999999; i++) {
             if (checkPassword(this.encryptedData, String.valueOf(i))) return true;
         }
@@ -80,6 +83,8 @@ public class BruteForce extends BaseAttack implements Runnable {
      */
     private boolean appendCharacter(String word) {
 
+        System.out.println("Append character method called.");
+
         // First Random character
         for (int i = 0; i < this.charset.length(); i++) {
             String firstWord = word.concat(String.valueOf(this.charset.charAt(i)));
@@ -88,19 +93,7 @@ public class BruteForce extends BaseAttack implements Runnable {
             // Second character
             for (int j = 0; j < this.charset.length(); j++) {
                 String secondWord = firstWord.concat(String.valueOf(this.charset.charAt(j)));
-                if (checkPassword(this.encryptedData, firstWord)) return true;
-
-                // Third character
-                for (int k = 0; k < this.charset.length(); k++) {
-                    String thirdWord = secondWord.concat(String.valueOf(this.charset.charAt(k)));
-                    if (checkPassword(this.encryptedData, thirdWord)) return true;
-
-                    // Fourth character
-                    for (int l = 0; l < this.charset.length(); l++) {
-                        String finalWord = thirdWord.concat(String.valueOf(this.charset.charAt(l)));
-                        if (checkPassword(this.encryptedData, finalWord)) return true;
-                    }
-                }
+                if (checkPassword(this.encryptedData, secondWord)) return true;
             }
         }
 
@@ -113,6 +106,8 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. pass0 -> pass1 -> pass2 ...
      */
     private boolean appendNumber(String word) {
+
+        System.out.println("Append number method called.");
 
         for (int i = 0; i < 99999; i++) {
             if (checkPassword(this.encryptedData, word.concat(String.valueOf(i))))
@@ -128,6 +123,8 @@ public class BruteForce extends BaseAttack implements Runnable {
      */
     private boolean prependNumber(String word) {
 
+        System.out.println("Prepend number method called.");
+
         for (int i = 0; i < 99999; i++) {
             if (checkPassword(this.encryptedData, String.valueOf(i).concat(word)))
                 return true;
@@ -141,6 +138,8 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. pAssword -> paSsword -> ... PASSword -> PASSWord ...
      */
     private boolean capitalize(String word) {
+
+        System.out.println("Capitalize string method called");
 
         // Check full casings
         if (checkPassword(this.encryptedData, word.toUpperCase()) ||
@@ -165,6 +164,8 @@ public class BruteForce extends BaseAttack implements Runnable {
      * e.g. P4SS -> P45S -> P455 ...
      */
     private boolean numberSubstitution(String word) {
+
+        System.out.println("Number substitution string method called");
 
         for (int i = 0; i < word.length(); i++) {
 
@@ -196,25 +197,25 @@ public class BruteForce extends BaseAttack implements Runnable {
             checkFound(checkPassword(this.encryptedData, word));
 
             // Filters
-            checkFound(reverseString(word));
-            checkFound(prependNumber(word));
-            checkFound(duplicateString(word));
-            checkFound(capitalize(word));
-            checkFound(numberSubstitution(word));
-            checkFound(appendNumber(word));
-            checkFound(appendCharacter(word));
+//            checkFound(reverseString(word));
+//            checkFound(prependNumber(word));
+//            checkFound(duplicateString(word));
+//            checkFound(capitalize(word));
+//            checkFound(numberSubstitution(word));
+//            checkFound(appendNumber(word));
+//            checkFound(appendCharacter(word));
         }
-
     }
 
     private void checkFound(boolean isFound) {
         if (isFound) {
             System.err.println("PASSWORD WAS FOUND BROTHERRRR");
             // TODO: Return the output from the decryption
-            writeOutput("Output");
+            Thread.yield();
             System.exit(0);
         }
     }
+
 
     public void run() {
 
@@ -227,19 +228,4 @@ public class BruteForce extends BaseAttack implements Runnable {
         crack(words);
     }
 
-
-    /**
-     * Write the output of the decrypted file to output.txt
-     *
-     * @param output The message that was decrypted
-     */
-    private void writeOutput(String output) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
-            writer.write(output);
-            writer.close();
-        } catch (Exception e) {
-            System.err.println("Couldn't write the output to file.");
-        }
-    }
 }
