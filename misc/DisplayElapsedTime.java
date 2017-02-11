@@ -8,13 +8,9 @@ import java.util.TimerTask;
  * PCAP
  */
 public class DisplayElapsedTime extends TimerTask {
-
-    private int secondsElapsed = 0;
-
     @Override
     public void run() {
-        secondsElapsed++;
-        System.out.println("[NOTICE] Attempting to crack password. (" + secondsElapsed + " seconds elapsed)");
+        System.out.println("[NOTICE] Attempting to crack password. Please wait...");
     }
 
 }

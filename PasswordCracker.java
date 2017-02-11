@@ -2,9 +2,12 @@ package com.pcap;
 
 import com.pcap.data.Dictionary;
 import com.pcap.methods.BruteForce;
+import com.pcap.misc.DisplayElapsedTime;
 import com.pcap.misc.events.PasswordCrackedEventListener;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,29 +41,29 @@ class PasswordCracker implements PasswordCrackedEventListener {
 
         // Loop over every chunk and pass the string array for that chunk
         for (int i = 0; i < this.dictionary.getMaxChunks(); i++) {
-
             String[] words = this.dictionary.getChunk(i);
-
             // Create new BruteForce object and set the event listener to this class.
             BruteForce attack = new BruteForce(this.encryptedData, words, i);
             attack.addListener(this);
-
             // Pass the words to the constructor and create a new instance
             Thread thread = new Thread(attack);
-
-            // Add the threads to the arraylist and start them
+            // Add the threads to the arraylist
             threads.add(thread);
-            thread.start();
-
         }
 
         // Thread for calculating the number
-        Thread numberGeneratorThread = new Thread(new BruteForce(this.encryptedData, null, Dictionary.chunkAmount));
+        BruteForce numberAttack = new BruteForce(this.encryptedData, null, Dictionary.chunkAmount);
+        numberAttack.addListener(this);
+        Thread numberGeneratorThread = new Thread(numberAttack);
         threads.add(numberGeneratorThread);
-        numberGeneratorThread.start();
+
+        for (Thread thread : threads) {
+            // Start every thread together
+            thread.start();
+        }
 
         // Start timer to show elapsed time
-        //new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 1000);
+        new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 10000);
 
     }
 
@@ -76,7 +79,7 @@ class PasswordCracker implements PasswordCrackedEventListener {
         }
 
         System.err.println("=============================================================================");
-        System.err.println("Password cracked successfully in " + TimeUnit.MILLISECONDS.toMinutes(endTime) + " mins " + TimeUnit.MILLISECONDS.toSeconds(endTime) + " seconds. Output sent to 'output.txt'");
+        System.err.println("Password cracked successfully in " + TimeUnit.MILLISECONDS.toMinutes(endTime) + " mins " + (TimeUnit.MILLISECONDS.toSeconds(endTime) - (TimeUnit.MILLISECONDS.toMinutes(endTime) * 60)) + " seconds. Output sent to 'output.txt'");
         System.err.println("=============================================================================");
 
 
