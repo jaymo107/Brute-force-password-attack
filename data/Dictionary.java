@@ -15,7 +15,7 @@ public class Dictionary {
 
     private String[] words;
     private int chunkSize;
-    public static final int chunkAmount = 127;
+    public static final int chunkAmount = 32;
     private int totalChunks;
 
     /**
