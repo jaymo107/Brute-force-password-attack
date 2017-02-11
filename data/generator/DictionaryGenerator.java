@@ -37,6 +37,8 @@ public class DictionaryGenerator {
                 continue;
             }
 
+            generatedWords.add(word);
+
             for(String subWord:numberSubstitution(word)) {
 
                 // Appended characters
@@ -111,7 +113,7 @@ public class DictionaryGenerator {
 
     private void appendWordsToDictionary(String[] words) {
         try {
-            FileWriter fw = new FileWriter("dictionary.txt", true);
+            FileWriter fw = new FileWriter("new.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw);
 
