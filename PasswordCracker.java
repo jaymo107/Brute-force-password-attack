@@ -70,15 +70,15 @@ class PasswordCracker implements PasswordCrackedEventListener {
         // Calculate time difference
         long endTime = System.currentTimeMillis() - startTime;
 
-        // Called when a password has been cracked
-        System.err.println("============================================================================");
-        System.err.println("Password cracked successfully in " + TimeUnit.MILLISECONDS.toMinutes(endTime) + " mins " + TimeUnit.MILLISECONDS.toSeconds(endTime) + " second. Output sent to 'output.txt'");
-        System.err.println("============================================================================");
-
         // Stop all threads
         for (Thread thread : this.threads) {
             thread.interrupt();
         }
+
+        System.err.println("=============================================================================");
+        System.err.println("Password cracked successfully in " + TimeUnit.MILLISECONDS.toMinutes(endTime) + " mins " + TimeUnit.MILLISECONDS.toSeconds(endTime) + " seconds. Output sent to 'output.txt'");
+        System.err.println("=============================================================================");
+
 
         System.exit(0);
     }
