@@ -2,8 +2,6 @@ package com.pcap.methods;
 
 import com.pcap.data.Dictionary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * @author JamesDavies
@@ -26,7 +24,7 @@ public class BruteForce extends BaseAttack implements Runnable {
         this.words = words;
         this.chunkId = chunkId;
         this.encryptedData = encryptedData;
-        this.charset = "0123456789QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm!?@£$";
+        this.charset = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm!?@£$";
     }
 
     /**
@@ -58,12 +56,20 @@ public class BruteForce extends BaseAttack implements Runnable {
         for (int i = 0; i < this.charset.length(); i++) {
             String firstWord = word.concat(String.valueOf(this.charset.charAt(i)));
             if (checkPassword(this.encryptedData, firstWord)) return true;
+        }
 
-            for (int j = 0; j < this.charset.length(); j++) {
-                String secondWord = firstWord.concat(String.valueOf(this.charset.charAt(j)));
-                if (checkPassword(this.encryptedData, secondWord)) return true;
-            }
+        return false;
+    }
 
+    /**
+     * Append or prepend a number to the string,
+     * e.g. pass0, 0pass, pass1, 1pass etc ...
+     */
+    private boolean appendOrPrependNumber(String word) {
+        // First Random character
+        for (int i = 0; i < 99; i++) {
+            if (checkPassword(this.encryptedData, word.concat(String.valueOf(i)))) return true;
+            if (checkPassword(this.encryptedData, String.valueOf(i).concat(word))) return true;
         }
 
         return false;
@@ -106,6 +112,7 @@ public class BruteForce extends BaseAttack implements Runnable {
             appendCharacter(word);
             duplicateString(word);
             capitalize(word);
+            appendOrPrependNumber(word);
         }
     }
 
