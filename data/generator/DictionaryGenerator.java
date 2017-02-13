@@ -47,9 +47,6 @@ public class DictionaryGenerator {
                 generatedWords.add(subWord);
             }
 
-            // reversed word
-            generatedWords.add(new StringBuilder(word).reverse().toString());
-
             System.out.println("Generint words " + word);
         }
 

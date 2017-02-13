@@ -83,10 +83,8 @@ public class BaseAttack {
             boolean hasFound = (result.contains("DECRYPTED:"));
 
             if (hasFound) {
-                String output = result.split(":")[1];
-
                 // Write the output to the text file
-                writeOutput(output);
+                writeOutput(result.split("DECRYPTED:")[1]);
 
                 System.err.println("Password found '" + password + "'");
 

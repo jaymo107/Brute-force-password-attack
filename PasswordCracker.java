@@ -31,15 +31,11 @@ class PasswordCracker implements PasswordCrackedEventListener {
     public void crack() {
 
         // Run each of the crack methods in their own threads
-        // TODO: Crack the password here
-
         System.out.println("Max chunks: " + this.dictionary.getMaxChunks());
         System.out.println("First chunk length: " + this.dictionary.getChunk(0).length);
 
         this.threads = new ArrayList<>();
         this.startTime = System.currentTimeMillis();
-
-        System.out.println("Max chunks: " + this.dictionary.getMaxChunks());
 
         // Loop over every chunk and pass the string array for that chunk
         for (int i = 0; i < this.dictionary.getMaxChunks(); i++) {

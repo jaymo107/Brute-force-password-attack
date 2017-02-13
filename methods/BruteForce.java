@@ -27,16 +27,8 @@ public class BruteForce extends BaseAttack implements Runnable {
         this.words = words;
         this.chunkId = chunkId;
         this.encryptedData = encryptedData;
-        this.charset = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm!?@£$";
+        this.charset = "!%?@£$&#+-";
         this.concatThread = concatThread;
-    }
-
-    /**
-     * Duplicate a string.
-     * e.g. passpass, P4SSP4SS ...
-     */
-    private boolean duplicateString(String word) {
-        return checkPassword(this.encryptedData, word + word);
     }
 
     /**
@@ -71,9 +63,9 @@ public class BruteForce extends BaseAttack implements Runnable {
      */
     private boolean appendOrPrependNumber(String word) {
         // First Random character
-        for (int i = 0; i < 99; i++) {
-            if (checkPassword(this.encryptedData, word.concat(String.valueOf(i)))) return true;
-            if (checkPassword(this.encryptedData, String.valueOf(i).concat(word))) return true;
+        for (int i = 0; i < 200; i++) {
+            if (checkPassword(this.encryptedData, word.concat(String.valueOf(i))) ||
+                    checkPassword(this.encryptedData, String.valueOf(i).concat(word))) return true;
         }
         return false;
     }
@@ -87,9 +79,6 @@ public class BruteForce extends BaseAttack implements Runnable {
         //System.err.println("First word: " + mainWord);
         // Loop over every word that hasn't been modified
         for (String word : this.words) {
-            if (mainWord.equals("red")) {
-                System.err.println("Using red! :D");
-            }
             // Check if word contains numbers
             if (!word.matches("[a-zA-Z]+") || mainWord.concat(word).length() > 15) continue;
             checkPassword(this.encryptedData, mainWord.concat(word));
@@ -105,9 +94,7 @@ public class BruteForce extends BaseAttack implements Runnable {
     private boolean capitalize(String word) {
 
         // Check full casings
-        if (checkPassword(this.encryptedData, word.toUpperCase()) ||
-                checkPassword(this.encryptedData, word.toLowerCase()))
-            return true;
+        if (checkPassword(this.encryptedData, word.toUpperCase())) return true;
 
         // Initially set the word to lower case
         word = word.toLowerCase();
@@ -132,7 +119,6 @@ public class BruteForce extends BaseAttack implements Runnable {
             checkPassword(this.encryptedData, word);
             // Filters
             appendCharacter(word);
-            duplicateString(word);
             capitalize(word);
             appendOrPrependNumber(word);
         }
