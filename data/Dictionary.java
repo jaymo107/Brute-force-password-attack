@@ -15,7 +15,10 @@ public class Dictionary {
 
     private String[] words;
     private int chunkSize;
-    public static final int chunkAmount = 96;
+    public static final int chunkAmount = 95;
+    // The number of chunks for the concatenation threads
+    public static final int concatChunks = 32;
+
     private int totalChunks;
 
     /**
@@ -66,11 +69,39 @@ public class Dictionary {
     }
 
     /**
+     * Get the dictionary fragment between 2 chunks specifying the chunk size.
+     *
+     * @param chunk
+     * @return
+     */
+    public String[] getChunk(int chunk, int size) {
+        return Arrays.copyOfRange(this.getWords(), size * chunk, (size * chunk) + size);
+    }
+
+    public String[] getWordsBetween(int start, int end) {
+        return Arrays.copyOfRange(this.getWords(), start, end);
+    }
+
+    /**
      * Return the maximum amount of chunks for this dictionary.
      *
      * @return
      */
     public int getMaxChunks() {
         return this.totalChunks;
+    }
+
+    public int getChunkSize(int maxChunks) {
+        return (int) Math.ceil(this.words.length / maxChunks);
+    }
+
+    /**
+     * Return the maximum amount of chunks for this dictionary.
+     *
+     * @return
+     */
+    public int getMaxChunks(int size) {
+        int newsize = (int) Math.ceil(this.words.length / size);
+        return (int) Math.ceil(this.words.length / newsize);
     }
 }
