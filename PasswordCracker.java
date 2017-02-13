@@ -39,11 +39,13 @@ class PasswordCracker implements PasswordCrackedEventListener {
         this.threads = new ArrayList<>();
         this.startTime = System.currentTimeMillis();
 
+        System.out.println("Max chunks: " + this.dictionary.getMaxChunks());
+
         // Loop over every chunk and pass the string array for that chunk
         for (int i = 0; i < this.dictionary.getMaxChunks(); i++) {
             String[] words = this.dictionary.getChunk(i);
             // Create new BruteForce object and set the event listener to this class.
-            BruteForce attack = new BruteForce(this.encryptedData, words, i);
+            BruteForce attack = new BruteForce(this.encryptedData, words, i, false);
             attack.addListener(this);
             // Pass the words to the constructor and create a new instance
             Thread thread = new Thread(attack);
@@ -52,10 +54,11 @@ class PasswordCracker implements PasswordCrackedEventListener {
         }
 
         // Thread for calculating the number
-        BruteForce numberAttack = new BruteForce(this.encryptedData, null, Dictionary.chunkAmount);
+        BruteForce numberAttack = new BruteForce(this.encryptedData, null, Dictionary.chunkAmount + 1, BruteForce.TRANSFORMATION_THREAD);
         numberAttack.addListener(this);
-        Thread numberGeneratorThread = new Thread(numberAttack);
-        threads.add(numberGeneratorThread);
+        threads.add(new Thread(numberAttack));
+
+        initialiseConcatThreads();
 
         for (Thread thread : threads) {
             // Start every thread together
@@ -64,7 +67,19 @@ class PasswordCracker implements PasswordCrackedEventListener {
 
         // Start timer to show elapsed time
         new Timer().scheduleAtFixedRate(new DisplayElapsedTime(), 0, 10000);
+    }
 
+    private void initialiseConcatThreads() {
+        // Get the max chunks for
+        int maxChunks = this.dictionary.getMaxChunks(32);
+        int chunkSize = this.dictionary.getChunkSize(maxChunks);
+
+        for (int j = 0; j < maxChunks; j++) {
+            String[] words = this.dictionary.getWordsBetween(chunkSize * j, (chunkSize * j) + chunkSize);
+            BruteForce concatAttack = new BruteForce(this.encryptedData, words, j, BruteForce.CONCAT_THREAD);
+            concatAttack.addListener(this);
+            this.threads.add(new Thread(concatAttack));
+        }
     }
 
     @Override
