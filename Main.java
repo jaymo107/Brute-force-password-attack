@@ -1,6 +1,7 @@
 package com.pcap;
 
 import com.pcap.data.Dictionary;
+import com.pcap.data.generator.DictionaryGenerator;
 
 public class Main {
 
@@ -15,6 +16,8 @@ public class Main {
 
         // Load in a dictionary.txt
         Dictionary dictionary = new Dictionary(dictionaryPath);
+
+        System.out.println("Dictionary word length " + dictionary.getWords().length);
 
         // Initialise the pcap file
         PcapFile file = new PcapFile(pcapInput);

@@ -31,15 +31,17 @@ public class DictionaryGenerator {
         // Apply these transformations on the words
         for (String word : this.words) {
 
+            word = word.replaceAll("\\s+", "");
+
             // Check if number is purely numeric
             if (isNumber(word) || isPlural(word)) {
                 System.out.println(word);
                 continue;
             }
 
-            generatedWords.add(word);
+            generatedWords.add(word.toLowerCase());
 
-            for(String subWord:numberSubstitution(word)) {
+            for (String subWord : numberSubstitution(word)) {
 
                 // Appended characters
                 generatedWords.add(subWord);
@@ -91,7 +93,22 @@ public class DictionaryGenerator {
      */
     private String[] numberSubstitution(String word) {
 
+        if (!word.matches("[a-zA-Z]+")) return new String[0];
+
         ArrayList<String> words = new ArrayList<>();
+
+        int occurances = 0;
+        // Count occurances
+        for (int i = 0; i < word.length(); i++) {
+            if (this.numberSubstitutes.containsKey(String.valueOf(word.charAt(i)).toLowerCase())) {
+                occurances++;
+            }
+        }
+        if (occurances > 3) {
+            return new String[0];
+        }
+
+        word = word.toLowerCase();
 
         for (int i = 0; i < word.length(); i++) {
 
@@ -104,6 +121,7 @@ public class DictionaryGenerator {
                 // We can replace it
                 String replacement = String.valueOf(this.numberSubstitutes.get(lowercaseChar));
                 word = word.replaceAll("[" + uppercaseChar + lowercaseChar + "]", replacement);
+                System.out.println(word);
                 words.add(word);
             }
         }
@@ -113,7 +131,7 @@ public class DictionaryGenerator {
 
     private void appendWordsToDictionary(String[] words) {
         try {
-            FileWriter fw = new FileWriter("new.txt", true);
+            FileWriter fw = new FileWriter("newdictionary.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw);
 
