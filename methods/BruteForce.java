@@ -14,8 +14,11 @@ public class BruteForce extends BaseAttack implements Runnable {
     private int chunkId;
     private String[] words;
     private String charset;
+    private boolean concatThread;
+    public static final boolean CONCAT_THREAD = true;
+    public static final boolean TRANSFORMATION_THREAD = false;
 
-    public BruteForce(String encryptedData, String[] words, int chunkId) {
+    public BruteForce(String encryptedData, String[] words, int chunkId, boolean concatThread) {
 
         // Call constructor on parent
         super();
@@ -25,6 +28,7 @@ public class BruteForce extends BaseAttack implements Runnable {
         this.chunkId = chunkId;
         this.encryptedData = encryptedData;
         this.charset = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm!?@£$";
+        this.concatThread = concatThread;
     }
 
     /**
@@ -71,7 +75,25 @@ public class BruteForce extends BaseAttack implements Runnable {
             if (checkPassword(this.encryptedData, word.concat(String.valueOf(i)))) return true;
             if (checkPassword(this.encryptedData, String.valueOf(i).concat(word))) return true;
         }
+        return false;
+    }
 
+    /**
+     * Concatenate 2 words together
+     *
+     * @param mainWord
+     */
+    private boolean concatenateWords(String mainWord) {
+        //System.err.println("First word: " + mainWord);
+        // Loop over every word that hasn't been modified
+        for (String word : this.words) {
+            if (mainWord.equals("red")) {
+                System.err.println("Using red! :D");
+            }
+            // Check if word contains numbers
+            if (!word.matches("[a-zA-Z]+") || mainWord.concat(word).length() > 15) continue;
+            checkPassword(this.encryptedData, mainWord.concat(word));
+        }
         return false;
     }
 
@@ -119,9 +141,22 @@ public class BruteForce extends BaseAttack implements Runnable {
 
     public void run() {
 
+        // Check if this thread is used for concatenation
+        if (this.concatThread) {
+
+            for (String word : words) {
+                if (!word.matches("[a-zA-Z]+") || word.length() > 10) continue;
+                if (concatenateWords(word)) return;
+            }
+            // If you reach the end of the for loop
+            Thread.yield();
+            return;
+        }
+
         // Check if this is the last thread to be ran, this is where you check the number
         if (this.chunkId >= Dictionary.chunkAmount) {
             checkForNumber();
+            Thread.yield();
             return;
         }
 
