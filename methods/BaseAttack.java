@@ -88,7 +88,7 @@ public class BaseAttack {
                 // Write the output to the text file
                 writeOutput(output);
 
-                System.err.println("Password found " + password);
+                System.err.println("Password found '" + password + "'");
 
                 for (PasswordCrackedEventListener hl : listeners)
                     hl.onPasswordCracked();
